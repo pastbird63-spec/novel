@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}新建书目{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-md-7">
+<h2 class="mb-4">新建书目</h2>
+<form method="POST">
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">书名 <span class="text-danger">*</span></label>
+        <input type="text" name="title" class="form-control" required placeholder="你的小说或系列名称">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">类型</label>
+        <input type="text" name="genre" class="form-control" placeholder="如：历史奇幻、现代悬疑……">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">简介</label>
+        <textarea name="description" class="form-control" rows="4" placeholder="这本书的核心一两句话……"></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary">创建</button>
+    <a href="{{ url_for('books.index') }}" class="btn btn-outline-secondary">取消</a>
+  </div>
+</form>
+</div>
+</div>
+{% endblock %}

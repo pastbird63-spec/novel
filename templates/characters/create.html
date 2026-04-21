@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}创建人物{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-md-8">
+<h2 class="mb-4">创建新人物</h2>
+<form method="POST" enctype="multipart/form-data">
+
+  <div class="card mb-3">
+    <div class="card-header">归属书目</div>
+    <div class="card-body">
+      <select name="book_id" class="form-select">
+        <option value="">不指定（未分类）</option>
+        {% for book in books %}
+        <option value="{{ book.id }}" {% if preselected_book_id == book.id %}selected{% endif %}>{{ book.title }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">基本信息</div>
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">姓名 <span class="text-danger">*</span></label>
+        <input type="text" name="name" class="form-control" required>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">别名 / 外号</label>
+          <input type="text" name="alias" class="form-control">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">年龄</label>
+          <input type="text" name="age" class="form-control">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">性别</label>
+          <select name="gender" class="form-select">
+            <option value="">不指定</option>
+            <option value="女">女</option>
+            <option value="男">男</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">人物描述</label>
+        <textarea name="description" class="form-control" rows="4" placeholder="外貌、性格、背景……"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      自定义词条
+      <button type="button" class="btn btn-sm btn-outline-primary" onclick="addField('fields-container', false)">+ 添加</button>
+    </div>
+    <div class="card-body">
+      <div id="fields-container">
+        <p class="text-muted mb-0 small" id="no-fields-hint">可自定义字段，如：武器、阵营、性格特质……</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">人物图片</div>
+    <div class="card-body">
+      <input type="file" name="images" class="form-control" multiple accept="image/*">
+      <small class="text-muted">支持 jpg/png/gif/webp，按住 Ctrl 可多选</small>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary">保存人物</button>
+    <a href="{{ url_for('characters.index') }}" class="btn btn-outline-secondary">取消</a>
+  </div>
+</form>
+</div>
+</div>
+{% endblock %}

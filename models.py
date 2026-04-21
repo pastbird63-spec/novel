@@ -1,0 +1,116 @@
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+
+db = SQLAlchemy()
+
+
+class Book(db.Model):
+    __tablename__ = 'books'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    genre = db.Column(db.String(100))
+    description = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    characters = db.relationship('Character', backref='book', lazy=True)
+    plot_nodes = db.relationship('PlotNode', backref='book', lazy=True,
+                                 order_by='PlotNode.order')
+    
+
+
+class Character(db.Model):
+    __tablename__ = 'characters'
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=True)
+    name = db.Column(db.String(100), nullable=False)
+    alias = db.Column(db.String(200))
+    age = db.Column(db.String(50))
+    gender = db.Column(db.String(20))
+    description = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    custom_fields = db.relationship('CharacterField', backref='character',
+                                    cascade='all, delete-orphan', lazy=True)
+    images = db.relationship('CharacterImage', backref='character',
+                             cascade='all, delete-orphan', lazy=True)
+
+
+class CharacterField(db.Model):
+    __tablename__ = 'character_fields'
+    id = db.Column(db.Integer, primary_key=True)
+    character_id = db.Column(db.Integer, db.ForeignKey('characters.id'), nullable=False)
+    field_name = db.Column(db.String(100), nullable=False)
+    field_value = db.Column(db.Text)
+
+
+class CharacterImage(db.Model):
+    __tablename__ = 'character_images'
+    id = db.Column(db.Integer, primary_key=True)
+    character_id = db.Column(db.Integer, db.ForeignKey('characters.id'), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+    caption = db.Column(db.String(200))
+
+
+class Relationship(db.Model):
+    __tablename__ = 'relationships'
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=True)
+    character_a_id = db.Column(db.Integer, db.ForeignKey('characters.id'), nullable=False)
+    character_b_id = db.Column(db.Integer, db.ForeignKey('characters.id'), nullable=False)
+    relation_type = db.Column(db.String(100))
+    description = db.Column(db.Text)
+
+    character_a = db.relationship('Character', foreign_keys=[character_a_id])
+    character_b = db.relationship('Character', foreign_keys=[character_b_id])
+
+
+class PlotNode(db.Model):
+    __tablename__ = 'plot_nodes'
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=True)
+    title = db.Column(db.String(200), nullable=False)
+    order = db.Column(db.Integer, default=0)
+    time_in_story = db.Column(db.String(200))
+    location = db.Column(db.String(200))
+    summary = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    custom_fields = db.relationship('PlotField', backref='plot_node',
+                                    cascade='all, delete-orphan', lazy=True)
+    plot_characters = db.relationship('PlotCharacter', backref='plot_node',
+                                      cascade='all, delete-orphan', lazy=True)
+
+
+class PlotField(db.Model):
+    __tablename__ = 'plot_fields'
+    id = db.Column(db.Integer, primary_key=True)
+    plot_node_id = db.Column(db.Integer, db.ForeignKey('plot_nodes.id'), nullable=False)
+    field_name = db.Column(db.String(100), nullable=False)
+    field_value = db.Column(db.Text)
+    is_flagged = db.Column(db.Boolean, default=False)
+    flag_note = db.Column(db.String(200))
+
+
+class PlotCharacter(db.Model):
+    __tablename__ = 'plot_characters'
+    id = db.Column(db.Integer, primary_key=True)
+    plot_node_id = db.Column(db.Integer, db.ForeignKey('plot_nodes.id'), nullable=False)
+    character_id = db.Column(db.Integer, db.ForeignKey('characters.id'), nullable=False)
+    role_in_plot = db.Column(db.String(100))
+    character = db.relationship('Character')
+
+
+# ── 新增：世界观设定库 ───────────────────────────────────────────────────────────
+
+WORLD_SETTING_CATEGORIES = ['地理', '规则', '历史', '其他']
+
+
+class WorldSetting(db.Model):
+    __tablename__ = 'world_settings'
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=True)
+    category = db.Column(db.String(20), nullable=False, default='其他')
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -1,0 +1,149 @@
+from flask import Blueprint, render_template, request, redirect, url_for, flash
+from models import db, PlotNode, PlotField, PlotCharacter, Character, Book
+
+plots_bp = Blueprint('plots', __name__, url_prefix='/plots')
+
+
+@plots_bp.route('/<int:book_id>')
+def index(book_id):
+    book = Book.query.get_or_404(book_id)
+    nodes = PlotNode.query.filter_by(book_id=book_id).order_by(PlotNode.order).all()
+    # 收集所有有标记的词条，用于顶部提醒
+    flagged = PlotField.query.filter_by(is_flagged=True).join(
+        PlotNode, PlotField.plot_node_id == PlotNode.id
+    ).filter(PlotNode.book_id == book_id).all()
+    return render_template('plots/index.html', book=book, nodes=nodes, flagged=flagged)
+
+
+@plots_bp.route('/<int:book_id>/create', methods=['GET', 'POST'])
+def create(book_id):
+    book = Book.query.get_or_404(book_id)
+    characters = Character.query.filter_by(book_id=book_id).all()
+
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        if not title:
+            flash('节点标题不能为空', 'danger')
+            return redirect(url_for('plots.create', book_id=book_id))
+
+        # 排序：放到末尾
+        max_order = db.session.query(db.func.max(PlotNode.order)).filter_by(book_id=book_id).scalar() or 0
+
+        node = PlotNode(
+            book_id=book_id,
+            title=title,
+            order=max_order + 1,
+            time_in_story=request.form.get('time_in_story', ''),
+            location=request.form.get('location', ''),
+            summary=request.form.get('summary', '')
+        )
+        db.session.add(node)
+        db.session.flush()
+
+        # 自定义词条
+        field_names = request.form.getlist('field_name')
+        field_values = request.form.getlist('field_value')
+        field_flagged = request.form.getlist('field_flagged')   # checkbox值列表
+        field_notes = request.form.getlist('field_note')
+
+        for i, (fname, fvalue) in enumerate(zip(field_names, field_values)):
+            if fname.strip():
+                is_flagged = str(i) in field_flagged
+                db.session.add(PlotField(
+                    plot_node_id=node.id,
+                    field_name=fname.strip(),
+                    field_value=fvalue.strip(),
+                    is_flagged=is_flagged,
+                    flag_note=field_notes[i] if i < len(field_notes) else ''
+                ))
+
+        # 关联人物
+        char_ids = request.form.getlist('character_ids')
+        for char_id in char_ids:
+            db.session.add(PlotCharacter(
+                plot_node_id=node.id,
+                character_id=int(char_id)
+            ))
+
+        db.session.commit()
+        flash(f'情节节点「{node.title}」已创建', 'success')
+        return redirect(url_for('plots.index', book_id=book_id))
+
+    return render_template('plots/create.html', book=book, characters=characters)
+
+
+@plots_bp.route('/node/<int:node_id>')
+def detail(node_id):
+    node = PlotNode.query.get_or_404(node_id)
+    return render_template('plots/detail.html', node=node)
+
+
+@plots_bp.route('/node/<int:node_id>/edit', methods=['GET', 'POST'])
+def edit(node_id):
+    node = PlotNode.query.get_or_404(node_id)
+    characters = Character.query.filter_by(book_id=node.book_id).all()
+    linked_char_ids = [pc.character_id for pc in node.plot_characters]
+
+    if request.method == 'POST':
+        node.title = request.form.get('title', '').strip()
+        node.time_in_story = request.form.get('time_in_story', '')
+        node.location = request.form.get('location', '')
+        node.summary = request.form.get('summary', '')
+
+        # 重建词条
+        PlotField.query.filter_by(plot_node_id=node.id).delete()
+        field_names = request.form.getlist('field_name')
+        field_values = request.form.getlist('field_value')
+        field_flagged = request.form.getlist('field_flagged')
+        field_notes = request.form.getlist('field_note')
+        for i, (fname, fvalue) in enumerate(zip(field_names, field_values)):
+            if fname.strip():
+                db.session.add(PlotField(
+                    plot_node_id=node.id,
+                    field_name=fname.strip(),
+                    field_value=fvalue.strip(),
+                    is_flagged=str(i) in field_flagged,
+                    flag_note=field_notes[i] if i < len(field_notes) else ''
+                ))
+
+        # 重建人物关联
+        PlotCharacter.query.filter_by(plot_node_id=node.id).delete()
+        for char_id in request.form.getlist('character_ids'):
+            db.session.add(PlotCharacter(plot_node_id=node.id, character_id=int(char_id)))
+
+        db.session.commit()
+        flash(f'「{node.title}」已更新', 'success')
+        return redirect(url_for('plots.detail', node_id=node.id))
+
+    return render_template('plots/edit.html', node=node,
+                           characters=characters, linked_char_ids=linked_char_ids)
+
+
+@plots_bp.route('/node/<int:node_id>/delete', methods=['POST'])
+def delete(node_id):
+    node = PlotNode.query.get_or_404(node_id)
+    book_id = node.book_id
+    db.session.delete(node)
+    db.session.commit()
+    flash(f'节点「{node.title}」已删除', 'warning')
+    return redirect(url_for('plots.index', book_id=book_id))
+
+
+@plots_bp.route('/node/<int:node_id>/move', methods=['POST'])
+def move(node_id):
+    """上移或下移情节节点"""
+    node = PlotNode.query.get_or_404(node_id)
+    direction = request.form.get('direction')
+    book_id = node.book_id
+
+    nodes = PlotNode.query.filter_by(book_id=book_id).order_by(PlotNode.order).all()
+    idx = next((i for i, n in enumerate(nodes) if n.id == node_id), None)
+
+    if direction == 'up' and idx and idx > 0:
+        nodes[idx].order, nodes[idx - 1].order = nodes[idx - 1].order, nodes[idx].order
+        db.session.commit()
+    elif direction == 'down' and idx is not None and idx < len(nodes) - 1:
+        nodes[idx].order, nodes[idx + 1].order = nodes[idx + 1].order, nodes[idx].order
+        db.session.commit()
+
+    return redirect(url_for('plots.index', book_id=book_id))

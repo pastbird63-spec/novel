@@ -1,0 +1,725 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Serif+SC:wght@300;400;500&family=Lato:wght@300;400&display=swap');
+
+/* ── 色彩系统：薰衣草紫 + 香槟 + 哑光金 ────────────────────────────── */
+:root {
+  --cream:        #ffffff;
+  --parchment:    #ffffff;
+  --parchment-2:  #ffffff;
+  --rose:         #7b6a96;          /* 薰衣草紫（主色） */
+  --rose-dark:    #5c4f72;          /* 深紫 */
+  --rose-light:   #d5cce8;          /* 浅紫 */
+  --rose-pale:    #f2eef8;          /* 极淡紫 */
+  --gold:         #b0a8c8;          /* 哑光金 */
+  --gold-light:   #dcd8ec;          /* 浅金 */
+  --gold-pale:    #f4f2f8;          /* 极淡金 */
+  --brown:        #3a3040;          /* 深紫棕（正文） */
+  --brown-mid:    #6a5e7a;          /* 中紫灰 */
+  --brown-light:  #a096b0;          /* 浅紫灰 */
+  --brown-pale:   #cec6d6;          /* 极浅紫灰 */
+  --border:       #ddd5e8;
+  --border-soft:  #ece7f2;
+  --white:        #ffffff;
+
+  /* 去掉 drop shadow，改为 translucent parchment-glass 层次 */
+  --shadow-sm:    none;
+  --shadow-md:    none;
+  --shadow-lg:    none;
+
+  /* 玻璃光泽层叠 */
+  --glass-bg:         rgba(253, 253, 253, 0.72);
+  --glass-bg-deep:    rgba(244, 244, 244, 0.82);
+  --glass-border:     rgba(160, 148, 200, 0.22);
+  --glass-border-hi:  rgba(140, 128, 180, 0.40);
+
+  --radius:       10px;
+  --radius-sm:    6px;
+}
+
+/* ── 基础重置 ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: 'Lato', 'Noto Serif SC', sans-serif;
+  font-weight: 300;
+  background-color: var(--cream);
+  background-image:
+    /* 精细噪点纹理 */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"),
+    /* 极淡薰衣草渐变底 */
+    linear-gradient(160deg, #f7f4f0 0%, #f0eaf8 50%, #f7f2e8 100%);
+  color: var(--brown);
+  margin: 0;
+  padding-bottom: 80px;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Cormorant Garant', 'Noto Serif SC', serif;
+  color: var(--brown);
+  line-height: 1.3;
+}
+h1 { font-size: 2.6rem; font-weight: 400; }
+h2 { font-size: 2rem; font-weight: 400; }
+h3 { font-size: 1.4rem; font-weight: 500; }
+h5 { font-size: 1.1rem; font-weight: 500; }
+
+a { color: var(--rose); text-decoration: none; }
+a:hover { color: var(--rose-dark); }
+
+p { line-height: 1.8; }
+
+/* ── 导航栏 ─────────────────────────────────────────────────────────── */
+.navbar {
+  background: var(--glass-bg) !important;
+  border-bottom: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px) saturate(1.3);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  padding: 0 0;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: none;
+}
+/* 顶部金线装饰 */
+.navbar::after {
+  content: '';
+  display: block;
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--gold-light) 20%,
+    var(--gold) 50%,
+    var(--gold-light) 80%,
+    transparent 100%);
+  opacity: 0.6;
+}
+.navbar .container {
+  display: flex;
+  align-items: center;
+  height: 60px;
+}
+.navbar-brand {
+  font-family: 'Cormorant Garant', serif;
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--brown) !important;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.navbar-brand .brand-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: inline-block;
+  opacity: 0.85;
+}
+.nav-link {
+  color: var(--brown-mid) !important;
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+  padding: 0.3rem 0.9rem !important;
+  border-radius: 20px;
+  transition: all 0.2s;
+}
+.nav-link:hover {
+  color: var(--rose) !important;
+  background: var(--rose-pale);
+}
+.nav-link.active-nav {
+  color: var(--rose) !important;
+  background: var(--rose-pale);
+}
+
+/* ── 页面容器 ──────────────────────────────────────────────────────── */
+.container { max-width: 1100px; }
+
+/* ── 页面顶部标题区 ─────────────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(90deg,
+    transparent,
+    var(--gold-light) 30%,
+    var(--gold) 50%,
+    var(--gold-light) 70%,
+    transparent) 1;
+}
+.page-header h2 { margin: 0; }
+
+/* ── 卡片：parchment-glass ────────────────────────────────────────── */
+.card {
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px) saturate(1.2);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  box-shadow: none;
+  overflow: hidden;
+  position: relative;
+}
+/* 左侧微妙金线竖装饰 */
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 10%; bottom: 10%;
+  width: 1px;
+  background: linear-gradient(to bottom,
+    transparent,
+    var(--gold-light) 30%,
+    var(--gold-light) 70%,
+    transparent);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.card-header {
+  background: var(--glass-bg-deep);
+  border-bottom: 1px solid var(--glass-border);
+  font-family: 'Cormorant Garant', serif;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.85rem 1.25rem;
+  letter-spacing: 0.02em;
+  color: var(--brown);
+  position: relative;
+}
+/* 卡片标题下金线 */
+.card-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 1.25rem; right: 1.25rem;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--gold) 40%,
+    var(--gold) 60%,
+    transparent);
+  opacity: 0.25;
+}
+.card-body { padding: 1.25rem; }
+.card-footer {
+  background: rgba(237, 230, 216, 0.45);
+  border-top: 1px solid var(--border-soft);
+  padding: 0.75rem 1.25rem;
+}
+
+/* ── 悬停卡片（用outline替代shadow） ──────────────────────────────── */
+.hover-card {
+  transition: transform 0.22s ease, border-color 0.22s ease;
+}
+.hover-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--glass-border-hi);
+  box-shadow: none;
+}
+
+/* ── 书架卡片 ──────────────────────────────────────────────────────── */
+.book-card {
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.book-card-spine {
+  width: 6px;
+  background: linear-gradient(180deg, var(--rose), var(--gold));
+  border-radius: 3px 0 0 3px;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+.book-card-inner {
+  padding: 1.4rem;
+  flex: 1;
+}
+.book-card-title {
+  font-family: 'Cormorant Garant', serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+  color: var(--brown);
+}
+.book-card-meta {
+  font-size: 0.8rem;
+  color: var(--brown-light);
+  margin-bottom: 0.8rem;
+}
+.book-card-desc {
+  font-size: 0.88rem;
+  color: var(--brown-mid);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+.book-card-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--brown-light);
+}
+.book-card-stats span { display: flex; align-items: center; gap: 4px; }
+
+/* ── 人物卡片 ──────────────────────────────────────────────────────── */
+.char-card {
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: none;
+  transition: transform 0.22s, border-color 0.22s;
+}
+.char-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--glass-border-hi);
+  box-shadow: none;
+}
+.char-card-img {
+  width: 100%; height: 200px; object-fit: cover;
+}
+.char-card-placeholder {
+  width: 100%; height: 200px;
+  background: linear-gradient(135deg, var(--parchment), var(--rose-pale));
+  display: flex; align-items: center; justify-content: center;
+}
+.char-card-placeholder-icon {
+  font-size: 3rem; color: var(--rose-light);
+  font-family: 'Cormorant Garant', serif;
+}
+.char-card-body { padding: 1rem 1rem 0.5rem; }
+.char-card-name {
+  font-family: 'Cormorant Garant', serif;
+  font-size: 1.1rem; font-weight: 500;
+  margin-bottom: 0.2rem; color: var(--brown);
+}
+.char-card-alias { font-size: 0.78rem; color: var(--brown-light); margin-bottom: 0.5rem; }
+.char-card-footer {
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--border-soft);
+  display: flex; gap: 0.5rem;
+}
+
+/* ── 标签 ───────────────────────────────────────────────────────────── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+}
+.tag-book {
+  background: rgba(237, 230, 216, 0.65);
+  color: var(--brown-mid);
+  border: 1px solid var(--glass-border);
+}
+.tag-genre {
+  background: rgba(237, 224, 184, 0.5);
+  color: var(--gold);
+  border: 1px solid rgba(168, 137, 58, 0.3);
+}
+.tag-unassigned {
+  background: var(--border-soft);
+  color: var(--brown-pale);
+  border: 1px solid var(--border);
+}
+.tag-flag {
+  background: rgba(255, 243, 220, 0.7);
+  color: #b07030;
+  border: 1px solid rgba(168, 137, 58, 0.35);
+}
+
+/* ── 按钮 ───────────────────────────────────────────────────────────── */
+.btn {
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  border-radius: 6px;
+  padding: 0.45rem 1rem;
+  transition: all 0.18s;
+}
+.btn-primary {
+  background: var(--rose);
+  border-color: var(--rose);
+  color: var(--white);
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: var(--rose-dark);
+  border-color: var(--rose-dark);
+  color: var(--white);
+}
+.btn-outline-primary {
+  color: var(--rose);
+  border-color: var(--rose);
+  background: transparent;
+}
+.btn-outline-primary:hover {
+  background: var(--rose);
+  border-color: var(--rose);
+  color: var(--white);
+}
+.btn-outline-secondary {
+  color: var(--brown-mid);
+  border-color: var(--glass-border);
+  background: rgba(255,252,248,0.5);
+}
+.btn-outline-secondary:hover {
+  background: var(--parchment);
+  border-color: var(--glass-border-hi);
+  color: var(--brown);
+}
+.btn-ghost {
+  color: var(--brown-light);
+  border: none;
+  background: transparent;
+  padding: 0.3rem 0.6rem;
+}
+.btn-ghost:hover { color: var(--rose); background: var(--rose-pale); }
+.btn-outline-danger {
+  color: #9a4060; border-color: #d4aabb; background: transparent;
+}
+.btn-outline-danger:hover {
+  background: #9a4060; border-color: #9a4060; color: white;
+}
+.btn-sm { font-size: 0.78rem; padding: 0.3rem 0.75rem; }
+
+/* ── 表单 ───────────────────────────────────────────────────────────── */
+.form-control, .form-select {
+  border-color: var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--brown);
+  font-size: 0.9rem;
+  font-weight: 300;
+  background: rgba(255, 252, 248, 0.75);
+  padding: 0.55rem 0.9rem;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--rose-light);
+  box-shadow: 0 0 0 3px rgba(123, 106, 150, 0.12);
+  outline: none;
+  background: rgba(255, 252, 255, 0.9);
+}
+.form-label {
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--brown-mid);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+textarea.form-control { line-height: 1.7; }
+
+/* ── 提示条 ──────────────────────────────────────────────────────────── */
+.alert {
+  border-radius: var(--radius-sm);
+  border: none;
+  padding: 0.85rem 1.1rem;
+  font-size: 0.88rem;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.alert-success { background: rgba(220,238,220,0.7); color: #2d5a3a; border-left: 2px solid #88b888; }
+.alert-danger  { background: rgba(248,224,228,0.7); color: #7a2840; border-left: 2px solid #c08898; }
+.alert-warning { background: rgba(250,245,220,0.7); color: #6a4e10; border-left: 2px solid var(--gold); }
+.alert-info    { background: rgba(226,224,248,0.65); color: #3a3870; border-left: 2px solid var(--rose-light); }
+
+/* ── 面包屑 ──────────────────────────────────────────────────────────── */
+.breadcrumb {
+  background: transparent; padding: 0; margin: 0;
+  font-size: 0.82rem; display: flex; align-items: center; gap: 6px;
+}
+.breadcrumb-item { color: var(--brown-light); }
+.breadcrumb-item a { color: var(--brown-light); }
+.breadcrumb-item a:hover { color: var(--rose); }
+.breadcrumb-item.active { color: var(--brown-mid); }
+.breadcrumb-item + .breadcrumb-item::before {
+  content: '·'; color: var(--gold-light); padding: 0 2px;
+}
+
+/* ── 筛选标签栏 ──────────────────────────────────────────────────────── */
+.filter-bar {
+  display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+}
+.filter-btn {
+  padding: 0.3rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  border: 1px solid var(--glass-border);
+  background: rgba(255,252,248,0.6);
+  color: var(--brown-mid);
+  cursor: pointer;
+  transition: all 0.18s;
+  text-decoration: none;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.filter-btn:hover { border-color: var(--rose); color: var(--rose); background: var(--rose-pale); }
+.filter-btn.active {
+  background: var(--rose); border-color: var(--rose);
+  color: var(--white);
+}
+
+/* ── 情节时间轴 ──────────────────────────────────────────────────────── */
+.timeline { position: relative; padding-left: 2rem; }
+.timeline::before {
+  content: '';
+  position: absolute; left: 0.6rem; top: 1rem; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom,
+    var(--gold-light),
+    var(--rose-light) 50%,
+    transparent);
+}
+.timeline-item { position: relative; margin-bottom: 1.2rem; }
+.timeline-dot {
+  position: absolute; left: -1.65rem; top: 1rem;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--cream);
+  outline: 2px solid var(--gold-light);
+}
+
+/* ── 关系图容器 ──────────────────────────────────────────────────────── */
+#relationship-graph {
+  width: 100%; height: 520px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ── 伏笔词条 ──────────────────────────────────────────────────────────── */
+.field-flagged {
+  background: rgba(250, 245, 224, 0.75);
+  border-left: 2px solid var(--gold);
+  padding: 0.7rem 1rem;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 0.6rem;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.flag-label {
+  font-size: 0.72rem; color: var(--gold);
+  font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; margin-bottom: 0.3rem;
+}
+
+/* ── 词条行 ──────────────────────────────────────────────────────────── */
+.field-row-edit {
+  background: rgba(242, 238, 248, 0.45);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+/* ── 信息表格 ────────────────────────────────────────────────────────── */
+.info-table { width: 100%; }
+.info-table tr td:first-child {
+  color: var(--brown-light);
+  font-size: 0.82rem;
+  width: 110px;
+  padding: 0.5rem 0;
+  vertical-align: top;
+  letter-spacing: 0.03em;
+}
+.info-table tr td:last-child {
+  padding: 0.5rem 0;
+  color: var(--brown);
+  line-height: 1.7;
+}
+.info-table tr { border-bottom: 1px solid var(--border-soft); }
+.info-table tr:last-child { border-bottom: none; }
+
+/* ── 空状态 ──────────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--brown-light);
+}
+.empty-state-icon {
+  font-family: 'Cormorant Garant', serif;
+  font-size: 3rem; margin-bottom: 1rem;
+  opacity: 0.35;
+}
+.empty-state p { font-size: 0.9rem; margin: 0; }
+
+/* ── 分割线饰 ──────────────────────────────────────────────────────── */
+.ornament {
+  text-align: center; color: var(--gold);
+  letter-spacing: 1em; font-size: 0.7rem;
+  margin: 2rem 0; opacity: 0.5;
+}
+
+/* ── 人物详情左侧图片区 ──────────────────────────────────────────────── */
+.char-gallery img {
+  width: 100%; border-radius: var(--radius-sm);
+  object-fit: cover; margin-bottom: 0.5rem;
+  box-shadow: none;
+  border: 1px solid var(--glass-border);
+}
+.char-gallery-placeholder {
+  width: 100%; height: 300px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--parchment), var(--rose-pale));
+  display: flex; align-items: center; justify-content: center;
+  color: var(--rose-light);
+  font-family: 'Cormorant Garant', serif;
+  font-size: 4rem;
+  border: 1px solid var(--glass-border);
+}
+
+/* ── 人物小头像（情节详情里） ──────────────────────────────────────── */
+.char-mini {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.6rem 0.8rem; border-radius: var(--radius-sm);
+  background: rgba(242, 238, 248, 0.5); color: var(--brown);
+  text-decoration: none; margin-bottom: 0.4rem;
+  transition: background 0.18s;
+  border: 1px solid var(--border-soft);
+}
+.char-mini:hover { background: var(--rose-pale); color: var(--rose); }
+.char-mini-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  object-fit: cover; flex-shrink: 0;
+}
+.char-mini-avatar-placeholder {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--rose-light);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--rose); font-size: 1rem; flex-shrink: 0;
+  font-family: 'Cormorant Garant', serif;
+}
+
+/* ── 书目详情 hub 头部 ──────────────────────────────────────────────── */
+.book-hub-header {
+  background: linear-gradient(135deg,
+    rgba(237, 230, 216, 0.85) 0%,
+    rgba(242, 238, 248, 0.80) 100%);
+  border-radius: var(--radius);
+  padding: 2rem 2.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--glass-border);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+}
+/* 右侧大字装饰 */
+.book-hub-header::after {
+  content: '✦';
+  position: absolute; right: 2rem; top: 50%;
+  transform: translateY(-50%);
+  font-size: 6rem; color: var(--rose-light);
+  font-family: 'Cormorant Garant', serif;
+  opacity: 0.2; pointer-events: none;
+}
+/* 顶部和底部金线横线 */
+.book-hub-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--gold-light) 25%,
+    var(--gold) 50%,
+    var(--gold-light) 75%,
+    transparent);
+  opacity: 0.55;
+}
+.book-hub-title {
+  font-family: 'Cormorant Garant', serif;
+  font-size: 2.2rem; font-weight: 400;
+  color: var(--brown); margin-bottom: 0.3rem;
+}
+
+/* ── 模块区块 ──────────────────────────────────────────────────────── */
+.section-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(90deg,
+    var(--gold-light) 0%,
+    var(--rose-light) 60%,
+    transparent) 1;
+}
+.section-title {
+  font-family: 'Cormorant Garant', serif;
+  font-size: 1.3rem; font-weight: 500; margin: 0;
+  color: var(--brown);
+}
+.section-count {
+  font-size: 0.82rem; color: var(--brown-light);
+  margin-left: 0.5rem; font-family: 'Lato', sans-serif;
+}
+
+/* ── 打印 ─────────────────────────────────────────────────────────────── */
+@media print {
+  .navbar, .btn, .no-print, .filter-bar { display: none !important; }
+  body { background: white; padding: 0; }
+  .card { box-shadow: none; border: 1px solid #ccc; }
+}
+
+/* ── 空装饰SVG ──────────────────────────────────────────────────────── */
+
+/* 书架页顶部装饰横条 */
+.mucha-banner {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 2rem;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* 人物详情页的花框装饰 */
+.mucha-frame {
+  position: relative;
+}
+.mucha-frame::before,
+.mucha-frame::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 32'%3E%3Cpath d='M0,16 Q25,4 50,16 Q75,28 100,16 Q125,4 150,16 Q175,28 200,16 Q225,4 250,16 Q275,28 300,16 Q325,4 350,16 Q375,28 400,16' stroke='%237b6a96' stroke-width='1' fill='none' opacity='0.45'/%3E%3Ccircle cx='50' cy='16' r='2.5' fill='%23a8893a' opacity='0.55'/%3E%3Ccircle cx='150' cy='16' r='2.5' fill='%23a8893a' opacity='0.55'/%3E%3Ccircle cx='250' cy='16' r='2.5' fill='%23a8893a' opacity='0.55'/%3E%3Ccircle cx='350' cy='16' r='2.5' fill='%23a8893a' opacity='0.55'/%3E%3Ccircle cx='100' cy='16' r='1.5' fill='%237b6a96' opacity='0.35'/%3E%3Ccircle cx='200' cy='16' r='1.5' fill='%237b6a96' opacity='0.35'/%3E%3Ccircle cx='300' cy='16' r='1.5' fill='%237b6a96' opacity='0.35'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 400px 32px;
+  margin: 0.5rem 0;
+}
+
+/* 页脚小叶饰 */
+.ornament-leaf {
+  text-align: center;
+  margin: 1.5rem 0;
+  opacity: 0.4;
+}
+.ornament-leaf::before {
+  content: '';
+  display: inline-block;
+  width: 120px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 16'%3E%3Cpath d='M60,8 Q45,2 30,6 Q15,10 5,8' stroke='%23a8893a' stroke-width='1' fill='none'/%3E%3Cpath d='M60,8 Q75,2 90,6 Q105,10 115,8' stroke='%23a8893a' stroke-width='1' fill='none'/%3E%3Cellipse cx='60' cy='8' rx='3' ry='4' fill='%237b6a96' opacity='0.6'/%3E%3Cellipse cx='30' cy='6' rx='2' ry='3' fill='%23a8893a' opacity='0.5' transform='rotate(-20,30,6)'/%3E%3Cellipse cx='90' cy='6' rx='2' ry='3' fill='%23a8893a' opacity='0.5' transform='rotate(20,90,6)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  vertical-align: middle;
+}
+
+/* 书目hub头部的圆形装饰 */
+.book-hub-header {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='95' stroke='%237b6a96' stroke-width='0.5' fill='none' opacity='0.15'/%3E%3Ccircle cx='100' cy='100' r='80' stroke='%23a8893a' stroke-width='0.3' fill='none' opacity='0.12'/%3E%3Cpath d='M100,5 Q120,40 100,60 Q80,40 100,5' fill='%23a8893a' opacity='0.06'/%3E%3Cpath d='M100,195 Q120,160 100,140 Q80,160 100,195' fill='%23a8893a' opacity='0.06'/%3E%3Cpath d='M5,100 Q40,120 60,100 Q40,80 5,100' fill='%23a8893a' opacity='0.06'/%3E%3Cpath d='M195,100 Q160,120 140,100 Q160,80 195,100' fill='%23a8893a' opacity='0.06'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right -20px center;
+  background-size: 260px 260px;
+}

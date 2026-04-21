@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}{{ book.title }}{% endblock %}
+{% block nav_books %}active-nav{% endblock %}
+
+{% block content %}
+<!-- 书目 Hub 头部 -->
+<div class="book-hub-header mb-4">
+  <div style="position:relative;z-index:1;">
+    <div class="book-hub-title">{{ book.title }}</div>
+    {% if book.genre %}<span class="tag tag-genre mb-2 d-inline-block">{{ book.genre }}</span>{% endif %}
+    {% if book.description %}<p class="mb-0 mt-2" style="color:var(--brown-mid);font-size:0.95rem;">{{ book.description }}</p>{% endif %}
+  </div>
+</div>
+
+<!-- 操作栏 -->
+<div class="d-flex gap-2 flex-wrap mb-4">
+  <a href="{{ url_for('books.edit', id=book.id) }}" class="btn btn-sm btn-outline-secondary">编辑书目</a>
+  <a href="{{ url_for('world.index', book_id=book.id) }}" class="btn btn-sm btn-outline-secondary">🌐 世界观设定</a>
+  <a href="{{ url_for('export.print_view', book_id=book.id) }}" class="btn btn-sm btn-outline-secondary" target="_blank">🖨 打印预览</a>
+  <a href="{{ url_for('export.export_json', book_id=book.id) }}" class="btn btn-sm btn-outline-secondary">⬇ 导出 JSON</a>
+  <form method="POST" action="{{ url_for('books.delete', id=book.id) }}"
+        onsubmit="return confirm('删除「{{ book.title }}」？人物不会被删除，但会变为未分类。')">
+    <button type="submit" class="btn btn-sm btn-outline-danger">删除书目</button>
+  </form>
+</div>
+
+<div class="row g-4">
+  <!-- 左侧：人物 -->
+  <div class="col-lg-7">
+    <div class="section-header">
+      <span class="section-title">人物 <span class="section-count">{{ book.characters|length }}</span></span>
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('relationships.graph', book_id=book.id) }}" class="btn btn-sm btn-outline-secondary">🕸 关系图</a>
+        <a href="{{ url_for('characters.create', book_id=book.id) }}" class="btn btn-sm btn-primary">+ 添加</a>
+      </div>
+    </div>
+
+    {% if book.characters %}
+    <div class="row row-cols-2 row-cols-sm-3 g-3">
+      {% for character in book.characters %}
+      <div class="col">
+        <a href="{{ url_for('characters.detail', id=character.id) }}" class="text-decoration-none">
+          <div class="char-card">
+            {% if character.images %}
+              <div class="mucha-frame"></div>
+              <img src="{{ url_for('static', filename='uploads/' + character.images[0].filename) }}"
+                   class="char-card-img">
+            {% else %}
+              <div class="char-card-placeholder">
+                <span class="char-card-placeholder-icon">✦</span>
+              </div>
+            {% endif %}
+            <div class="char-card-body">
+              <div class="char-card-name">{{ character.name }}</div>
+              {% if character.alias %}<div class="char-card-alias">{{ character.alias }}</div>{% endif %}
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding:2rem;">
+      <p>还没有人物，<a href="{{ url_for('characters.create', book_id=book.id) }}">点击添加</a></p>
+    </div>
+    {% endif %}
+  </div>
+  <div class="ornament-leaf"></div>
+  <!-- 右侧：情节 -->
+  <div class="col-lg-5">
+    <div class="section-header">
+      <span class="section-title">情节脉络 <span class="section-count">{{ book.plot_nodes|length }}</span></span>
+      <div class="d-flex gap-2">
+        <a href="{{ url_for('plots.index', book_id=book.id) }}" class="btn btn-sm btn-outline-secondary">查看全部</a>
+        <a href="{{ url_for('plots.create', book_id=book.id) }}" class="btn btn-sm btn-primary">+ 添加</a>
+      </div>
+    </div>
+
+    {% if book.plot_nodes %}
+    <div class="timeline">
+      {% for node in book.plot_nodes %}
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="card" style="border-radius:var(--radius-sm);">
+          <div class="card-body py-2 px-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <a href="{{ url_for('plots.detail', node_id=node.id) }}"
+                 class="text-decoration-none fw-bold" style="color:var(--brown);font-size:0.92rem;">
+                {{ node.title }}
+              </a>
+              {% set flagged_count = node.custom_fields | selectattr('is_flagged') | list | length %}
+              {% if flagged_count > 0 %}
+                <span class="tag tag-flag ms-2" style="font-size:0.7rem;">🚩 {{ flagged_count }}</span>
+              {% endif %}
+            </div>
+            {% if node.time_in_story or node.location %}
+            <div style="font-size:0.75rem;color:var(--brown-light);margin-top:2px;">
+              {% if node.time_in_story %}{{ node.time_in_story }}{% endif %}
+              {% if node.location %} · {{ node.location }}{% endif %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding:2rem;">
+      <p>还没有情节节点，<a href="{{ url_for('plots.create', book_id=book.id) }}">开始构建故事脉络</a></p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

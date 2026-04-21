@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}编辑 {{ node.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-md-8">
+<h2 class="mb-4">编辑节点：{{ node.title }}</h2>
+<form method="POST">
+
+  <div class="card mb-3">
+    <div class="card-header">基本信息</div>
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">节点标题 <span class="text-danger">*</span></label>
+        <input type="text" name="title" class="form-control" value="{{ node.title }}" required>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">故事内时间</label>
+          <input type="text" name="time_in_story" class="form-control" value="{{ node.time_in_story or '' }}">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">地点</label>
+          <input type="text" name="location" class="form-control" value="{{ node.location or '' }}">
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">情节概述</label>
+        <textarea name="summary" class="form-control" rows="4">{{ node.summary or '' }}</textarea>
+      </div>
+    </div>
+  </div>
+
+  {% if characters %}
+  <div class="card mb-3">
+    <div class="card-header">出场人物</div>
+    <div class="card-body">
+      <div class="row row-cols-2 row-cols-md-4 g-2">
+        {% for character in characters %}
+        <div class="col">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox"
+                   name="character_ids" value="{{ character.id }}"
+                   id="char-{{ character.id }}"
+                   {% if character.id in linked_char_ids %}checked{% endif %}>
+            <label class="form-check-label" for="char-{{ character.id }}">{{ character.name }}</label>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      自定义词条
+      <button type="button" class="btn btn-sm btn-outline-primary"
+              onclick="addField('fields-container', true)">+ 添加</button>
+    </div>
+    <div class="card-body">
+      <div id="fields-container">
+        {% if node.custom_fields %}
+          {% for field in node.custom_fields %}
+          <div class="field-row-edit field-row mb-2">
+            <div class="row g-2 align-items-center mb-2">
+              <div class="col-md-3">
+                <input type="text" name="field_name" class="form-control form-control-sm"
+                       value="{{ field.field_name }}">
+              </div>
+              <div class="col-md-8">
+                <input type="text" name="field_value" class="form-control form-control-sm"
+                       value="{{ field.field_value or '' }}">
+              </div>
+              <div class="col-md-1">
+                <button type="button" class="btn btn-outline-danger btn-sm"
+                        onclick="this.closest('.field-row').remove()">×</button>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <div class="form-check mb-0">
+                <input class="form-check-input" type="checkbox"
+                       name="field_flagged" value="{{ loop.index0 }}"
+                       id="flag-{{ loop.index0 }}"
+                       {% if field.is_flagged %}checked{% endif %}
+                       onchange="document.getElementById('note-{{ loop.index0 }}').style.display = this.checked ? '' : 'none'">
+                <label class="form-check-label flag-label" for="flag-{{ loop.index0 }}">🔖 标记为伏笔</label>
+              </div>
+              <div id="note-{{ loop.index0 }}" style="{{ '' if field.is_flagged else 'display:none' }}" class="flex-grow-1">
+                <input type="text" name="field_note" class="form-control form-control-sm"
+                       value="{{ field.flag_note or '' }}" placeholder="提醒备注……">
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted mb-0 small" id="no-fields-hint">点击"添加"自定义词条</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary">保存修改</button>
+    <a href="{{ url_for('plots.detail', node_id=node.id) }}" class="btn btn-outline-secondary">取消</a>
+  </div>
+</form>
+</div>
+</div>
+{% endblock %}

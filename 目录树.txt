@@ -1,0 +1,64 @@
+卷 Data 的文件夹 PATH 列表
+卷序列号为 72F4-1778
+D:.
+│  app.py
+│  models.py
+│  novel.db
+│  requirements.txt
+│  目录树.txt
+│  目录清单.txt
+│  
+├─routes
+│  │  books.py
+│  │  characters.py
+│  │  export.py
+│  │  plots.py
+│  │  relationships.py
+│  │  __init__.py
+│  │  
+│  └─__pycache__
+│          books.cpython-314.pyc
+│          characters.cpython-314.pyc
+│          export.cpython-314.pyc
+│          plots.cpython-314.pyc
+│          relationships.cpython-314.pyc
+│          __init__.cpython-314.pyc
+│          
+├─static
+│  ├─css
+│  │      style.css
+│  │      
+│  ├─js
+│  │      main.js
+│  │      
+│  └─uploads
+├─templates
+│  │  base.html
+│  │  
+│  ├─books
+│  │      create.html
+│  │      detail.html
+│  │      edit.html
+│  │      index.html
+│  │      
+│  ├─characters
+│  │      create.html
+│  │      detail.html
+│  │      edit.html
+│  │      index.html
+│  │      
+│  ├─export
+│  │      print.html
+│  │      
+│  ├─plots
+│  │      create.html
+│  │      detail.html
+│  │      edit.html
+│  │      index.html
+│  │      
+│  └─relationships
+│          graph.html
+│          
+└─__pycache__
+        models.cpython-314.pyc
+        

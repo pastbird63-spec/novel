@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}新建情节节点{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-md-8">
+<h2 class="mb-4">新建情节节点</h2>
+<form method="POST">
+
+  <div class="card mb-3">
+    <div class="card-header">基本信息</div>
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">节点标题 <span class="text-danger">*</span></label>
+        <input type="text" name="title" class="form-control" required placeholder="如：初入皇城、决战前夜……">
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">故事内时间</label>
+          <input type="text" name="time_in_story" class="form-control" placeholder="如：元和三年三月">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">地点</label>
+          <input type="text" name="location" class="form-control" placeholder="如：皇城、北境">
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">情节概述</label>
+        <textarea name="summary" class="form-control" rows="4" placeholder="这个节点发生了什么……"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 出场人物 -->
+  {% if characters %}
+  <div class="card mb-3">
+    <div class="card-header">出场人物</div>
+    <div class="card-body">
+      <div class="row row-cols-2 row-cols-md-4 g-2">
+        {% for character in characters %}
+        <div class="col">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox"
+                   name="character_ids" value="{{ character.id }}"
+                   id="char-{{ character.id }}">
+            <label class="form-check-label" for="char-{{ character.id }}">
+              {{ character.name }}
+            </label>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 自定义词条（支持伏笔标记） -->
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      自定义词条
+      <button type="button" class="btn btn-sm btn-outline-primary"
+              onclick="addField('fields-container', true)">+ 添加</button>
+    </div>
+    <div class="card-body">
+      <div id="fields-container">
+        <p class="text-muted mb-0 small" id="no-fields-hint">
+          可添加伏笔、转折、悬念等词条，支持标记提醒。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary">保存节点</button>
+    <a href="{{ url_for('plots.index', book_id=book.id) }}" class="btn btn-outline-secondary">取消</a>
+  </div>
+</form>
+</div>
+</div>
+{% endblock %}

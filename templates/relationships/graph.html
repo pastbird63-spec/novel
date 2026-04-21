@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}{{ book.title }} · 关系图{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('books.index') }}">书架</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('books.detail', id=book.id) }}">{{ book.title }}</a></li>
+    <li class="breadcrumb-item active">关系图</li>
+  </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>关系图</h2>
+  <small class="text-muted">点击图中人物可跳转至详情页</small>
+</div>
+
+<!-- vis.js 网状图容器 -->
+<div id="relationship-graph" class="mb-4"></div>
+
+{% if not characters %}
+<div class="text-center py-4 text-muted">
+  <p>这本书还没有人物，<a href="{{ url_for('characters.create', book_id=book.id) }}">去创建人物</a>后再来添加关系。</p>
+</div>
+{% endif %}
+
+<!-- 添加关系表单 -->
+{% if characters|length >= 2 %}
+<div class="card mb-4">
+  <div class="card-header">添加关系</div>
+  <div class="card-body">
+    <form method="POST" action="{{ url_for('relationships.add', book_id=book.id) }}">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label small">人物 A</label>
+          <select name="character_a_id" class="form-select" required>
+            <option value="">选择人物</option>
+            {% for c in characters %}
+            <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small">关系描述</label>
+          <input type="text" name="relation_type" class="form-control" placeholder="如：母女、政敌……">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small">人物 B</label>
+          <select name="character_b_id" class="form-select" required>
+            <option value="">选择人物</option>
+            {% for c in characters %}
+            <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small">备注（可选）</label>
+          <input type="text" name="description" class="form-control" placeholder="详细说明……">
+        </div>
+        <div class="col-md-1">
+          <button type="submit" class="btn btn-primary w-100">添加</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<!-- 已有关系列表 -->
+{% if relationships %}
+<div class="card">
+  <div class="card-header">已有关系 ({{ relationships|length }})</div>
+  <div class="card-body p-0">
+    <table class="table table-borderless mb-0">
+      <thead style="background: var(--parchment);">
+        <tr>
+          <th class="ps-3">人物 A</th>
+          <th>关系</th>
+          <th>人物 B</th>
+          <th>备注</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rel in relationships %}
+        <tr>
+          <td class="ps-3">
+            <a href="{{ url_for('characters.detail', id=rel.character_a.id) }}">{{ rel.character_a.name }}</a>
+          </td>
+          <td>{{ rel.relation_type or '—' }}</td>
+          <td>
+            <a href="{{ url_for('characters.detail', id=rel.character_b.id) }}">{{ rel.character_b.name }}</a>
+          </td>
+          <td class="text-muted small">{{ rel.description or '' }}</td>
+          <td>
+            <form method="POST" action="{{ url_for('relationships.delete', rel_id=rel.id) }}"
+                  onsubmit="return confirm('删除这条关系？')">
+              <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<!-- vis.js 网络图库 -->
+<script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.6/dist/vis-network.min.js"></script>
+<script>
+  // 把 Flask 传来的 Python 数据转成 JS 可用的格式
+  const nodes = {{ nodes | tojson }};
+  const edges = {{ edges | tojson }};
+  initGraph(nodes, edges);
+</script>
+{% endblock %}
